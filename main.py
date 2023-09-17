@@ -36,8 +36,8 @@ def add_client(cursor, first_name, last_name, email_client, phone_client=None):
     with cursor.cursor() as cur:
         cur.execute("""
             INSERT INTO client(first_name, last_name, email_client)
-            VALUES (%s, %s, %s)
-            RETURNING id_client;""", (first_name, last_name, email_client))
+            VALUES      (%s, %s, %s)
+            RETURNING   id_client;""", (first_name, last_name, email_client))
         id_client = cur.fetchone()[0]
 
         if phone_client:
@@ -52,8 +52,8 @@ def add_phone(cursor, id_client, phone_client):
     with cursor.cursor() as cur:
         cur.execute("""
             INSERT INTO phones(phone_client, id_client)
-            VALUES (%s, %s)
-            RETURNING phone_client, id_client;""", (phone_client, id_client))
+            VALUES      (%s, %s)
+            RETURNING   phone_client, id_client;""", (phone_client, id_client))
         info = cur.fetchone()
         print(f'Телефон {info[0]} добавлен клиенту c id={info[1]}')
 
@@ -62,48 +62,49 @@ def change_client(cursor, id_client, first_name=None, last_name=None, email_clie
     if first_name:
         with cursor.cursor() as cur:
             cur.execute("""
-                UPDATE client
-                SET first_name = %s
-                WHERE id_client = %s;""", (first_name, id_client))
+                UPDATE  client
+                SET     first_name = %s
+                WHERE   id_client = %s;""", (first_name, id_client))
     if last_name:
         with cursor.cursor() as cur:
             cur.execute("""
-                UPDATE client
-                SET last_name = %s
-                WHERE id_client = %s;""", (last_name, id_client))
+                UPDATE  client
+                SET     last_name = %s
+                WHERE   id_client = %s;""", (last_name, id_client))
     if email_client:
         with cursor.cursor() as cur:
             cur.execute("""
-                UPDATE client
-                SET email_client = %s
-                WHERE id_client = %s;""", (email_client, id_client))
+                UPDATE  client
+                SET     email_client = %s
+                WHERE   id_client = %s;""", (email_client, id_client))
     if phone_client:
         with cursor.cursor() as cur:
             cur.execute("""
-                SELECT id_phone, phone_client
-                FROM phones
-                WHERE id_client = %s;""", (id_client,))
+                SELECT  id_phone, phone_client
+                FROM    phones
+                WHERE   id_client = %s;""", (id_client,))
             info = cur.fetchall()
             if len(info) > 1:
                 for i in info:
                     print(f"Телефон {i[1]} - ID = {i[0]}")
                 id_phone = int(input(f"Введите ID телефона который хотите изменить: "))
                 cur.execute("""
-                    UPDATE phones
-                    SET phone_client = %s
-                    WHERE id_client = %s
-                    AND id_phone = %s;""", (phone_client, id_client, id_phone))
+                    UPDATE  phones
+                    SET     phone_client = %s
+                    WHERE   id_client = %s
+                    AND     id_phone = %s;""", (phone_client, id_client, id_phone))
             if len(info) == 1:
                 cur.execute("""
-                    UPDATE phones
-                    SET phone_client = %s
-                    WHERE id_client = %s;""", (phone_client, id_client))
+                    UPDATE  phones
+                    SET     phone_client = %s
+                    WHERE   id_client = %s;""", (phone_client, id_client))
 
 
 def delete_phone(cursor, id_client, phone_client):
     with cursor.cursor() as cur:
         cur.execute("""
-            DELETE FROM phones
+            DELETE 
+            FROM    phones
             WHERE   id_client = %s 
             AND     phone_client = %s;""", (id_client, phone_client))
 
@@ -114,7 +115,8 @@ def delete_phone(cursor, id_client, phone_client):
 def delete_client(cursor, id_client):
     with cursor.cursor() as cur:
         cur.execute("""
-            DELETE FROM client
+            DELETE 
+            FROM        client
             WHERE       id_client = %s
             RETURNING   id_client;""", (id_client,))
         print(f'Клиент с ID = {cur.fetchone()[0]} удален!')
@@ -128,13 +130,16 @@ def find_client(cursor, first_name=None, last_name=None, email_client=None, phon
             params.update({key: '%'})
     with cursor.cursor() as cur:
         cur.execute("""
-                SELECT c.id_client, c.first_name, c.last_name, c.email_client, p.phone_client FROM client AS c
-                LEFT JOIN phones AS p ON c.id_client = p.id_client
-                WHERE c.first_name LIKE %s
-                AND c.last_name LIKE %s
-                AND c.email_client LIKE %s
-                AND p.phone_client LIKE %s;""", (params.get('first_name'), params.get('last_name'),
-                                                 params.get('email_client'), params.get('phone_client')))
+                SELECT      c.id_client, c.first_name, c.last_name,
+                            c.email_client, p.phone_client 
+                FROM        client AS c
+                LEFT JOIN   phones AS p 
+                ON          c.id_client = p.id_client
+                WHERE       c.first_name LIKE %s
+                AND         c.last_name LIKE %s
+                AND         c.email_client LIKE %s
+                AND         p.phone_client LIKE %s;""", (params.get('first_name'), params.get('last_name'),
+                                                         params.get('email_client'), params.get('phone_client')))
         pprint.pprint(cur.fetchall())
 
 
