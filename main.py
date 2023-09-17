@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 
 def create_db(cursor):
     with cursor.cursor() as cur:
-        cur.execute("""
-            DROP TABLE IF EXISTS telephone;
-            DROP TABLE IF EXISTS client;
-        """)
+        # cur.execute("""
+        #     DROP TABLE IF EXISTS telephone;
+        #     DROP TABLE IF EXISTS client;
+        # """)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS client(
                 PRIMARY KEY (id_client),
